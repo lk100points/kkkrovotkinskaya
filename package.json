@@ -1,0 +1,9 @@
+{
+  "name": "krovotkinskaya",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Procedural browser-based first-person horror adventure",
+  "scripts": {
+    "serve": "python -m http.server 8000"
+  }
+}

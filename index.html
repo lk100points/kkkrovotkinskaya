@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#08090c" />
+  <meta name="description" content="Кровоткинская — атмосферный браузерный хоррор от первого лица." />
+  <title>Кровоткинская</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css" />
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
+  </script>
+</head>
+<body>
+  <div id="game-root">
+    <canvas id="game-canvas"></canvas>
+    <div id="scene-fade"></div>
+    <div id="vignette"></div>
+    <div id="grain"></div>
+
+    <div id="intro-copy" class="screen hidden">
+      <div class="intro-topline">MOSCOW · 03:17 AM · UNKNOWN EVENT</div>
+      <div class="intro-bottom">
+        <div class="intro-kicker">НЕЗАРЕГИСТРИРОВАННОЕ ПРОИСШЕСТВИЕ № 008</div>
+        <h1>КРОВОТКИНСКАЯ<span>_</span></h1>
+        <p>Некоторые двери открываются только изнутри.</p>
+        <button id="start-button" class="primary-button">НАЧАТЬ ИСТОРИЮ <span>↗</span></button>
+        <div class="intro-foot">WASD — ДВИЖЕНИЕ &nbsp;·&nbsp; МЫШЬ — ОБЗОР &nbsp;·&nbsp; E — ВЗАИМОДЕЙСТВИЕ</div>
+      </div>
+    </div>
+
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="chapter-mark"><span class="chapter-dot"></span><span id="chapter-name">ГЛАВА 01 / ХРАМ</span></div>
+        <div class="objective"><span class="objective-label">ТЕКУЩАЯ ЗАДАЧА</span><span id="objective-text">Найти вход в церковь</span></div>
+        <button id="pause-button" class="icon-button" aria-label="Пауза">Ⅱ</button>
+      </div>
+      <div id="crosshair"><i></i><b></b></div>
+      <div id="interact-prompt" class="interact-prompt hidden"><span class="keycap">E</span><span id="interact-label">ВЗАИМОДЕЙСТВОВАТЬ</span></div>
+      <div class="hud-bottom">
+        <div class="status-block"><div class="status-caption">СОСТОЯНИЕ</div><div class="health-track"><span id="health-fill"></span></div><div id="health-value">100 / 100</div></div>
+        <div id="inventory" class="inventory">
+          <div class="slot active" data-slot="1"><span class="slot-number">1</span><span class="slot-icon">◌</span><span class="slot-name">ЗАЖИГАЛКА</span></div>
+          <div class="slot" data-slot="2"><span class="slot-number">2</span><span class="slot-icon">⌁</span><span class="slot-name">АВТОМАТ</span></div>
+          <div class="slot" data-slot="3"><span class="slot-number">3</span><span class="slot-icon">◎</span><span class="slot-name">ПОРТАЛ</span></div>
+        </div>
+        <div class="location-readout"><span class="location-coord">55°44' N / 37°36' E</span><span id="location-name">ХРАМ ХРИСТА СПАСИТЕЛЯ</span></div>
+      </div>
+      <div id="toast" class="toast"></div>
+      <div id="damage-flash"></div>
+      <div id="dialogue" class="dialogue hidden"><div class="dialogue-speaker" id="dialogue-speaker">НЕИЗВЕСТНЫЙ</div><div id="dialogue-text"></div><div class="dialogue-next">E / ENTER — ПРОДОЛЖИТЬ</div></div>
+      <div id="flight-hud" class="flight-hud hidden"><div><span>КУРС</span><b id="flight-heading">N 000°</b></div><div><span>ИМПУЛЬС</span><b id="flight-boost">ГОТОВ</b></div><div><span>ЦЕЛИ</span><b id="flight-score">0 / 5</b></div></div>
+      <div id="shift-prompt" class="shift-prompt hidden"><strong>SHIFT</strong><span>ПРОЙТИ СКВОЗЬ ПРОСТРАНСТВО</span></div>
+    </div>
+
+    <div id="pause-screen" class="menu-screen hidden">
+      <div class="menu-panel"><div class="menu-eyebrow">СИСТЕМА / ПРИОСТАНОВЛЕНА</div><h2>ПАУЗА<span>_</span></h2>
+        <button id="resume-button" class="primary-button full">ПРОДОЛЖИТЬ</button>
+        <div class="settings-block"><label for="volume-slider">ГРОМКОСТЬ <span id="volume-value">65%</span></label><input id="volume-slider" type="range" min="0" max="100" value="65"></div>
+        <div class="settings-block"><label for="quality-select">КАЧЕСТВО ГРАФИКИ</label><select id="quality-select"><option value="high">ВЫСОКОЕ</option><option value="medium">СРЕДНЕЕ</option><option value="low">НИЗКОЕ</option></select></div>
+        <div class="control-note">WASD — движение · мышь — обзор · E — действие<br>ЛКМ — автомат в Садовых кварталах · ПКМ — портал / огонь с тарелки<br>В тарелке: WASD — полёт · Space/Ctrl — высота · F — ультраудар · Shift — переход · ESC — пауза</div>
+        <button id="restart-button" class="text-button">НАЧАТЬ СНАЧАЛА</button>
+      </div>
+    </div>
+
+    <div id="ending-screen" class="screen hidden">
+      <div id="ending-code" class="ending-code">CYCLE 001 · TERMINATED / RESTARTING</div>
+      <div class="ending-center"><div class="ending-symbol">◉</div><div class="ending-label">КОНЕЦ ПЕРВОГО ЦИКЛА</div><h2>КРОВОТКИНСКАЯ<span>_</span></h2><p>Он уже встречал тебя. Просто не в этой версии.</p><button id="loop-button" class="primary-button">ПОВТОРИТЬ ЦИКЛ ↻</button></div>
+      <div class="ending-footer">АРХИВ ВОССТАНОВЛЕН · ВХОДЯЩЕЕ СОБЫТИЕ НЕ ОПРЕДЕЛЕНО</div>
+    </div>
+
+    <div id="loading-cover" class="loading-cover"><div class="loading-mark">К<span>.</span></div><div class="loading-line"><i></i></div><div class="loading-caption">ВОССТАНОВЛЕНИЕ ПРОСТРАНСТВА</div></div>
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
